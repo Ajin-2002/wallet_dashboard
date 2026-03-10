@@ -22,8 +22,10 @@ function Dashboard() {
   const [showAddBank, setShowAddBank] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // ✅ Fix ESLint warning: disable warning for loadAllData dependency
   useEffect(() => {
     loadAllData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const loadAllData = async () => {
@@ -38,7 +40,7 @@ function Dashboard() {
   };
 
   const loadWallet = () => {
-    return fetch("http://localhost:4000/api/wallet/balance")
+    return fetch(`${process.env.REACT_APP_API_URL}/api/wallet/balance`)
       .then(res => res.json())
       .then(data => {
         setBalance(data.balance || 0);
@@ -48,21 +50,21 @@ function Dashboard() {
   };
 
   const loadTransactions = () => {
-    return fetch("http://localhost:4000/api/wallet/transactions")
+    return fetch(`${process.env.REACT_APP_API_URL}/api/wallet/transactions`)
       .then(res => res.json())
       .then(data => setTransactions(Array.isArray(data) ? data : []))
       .catch(err => console.error("Error loading transactions:", err));
   };
 
   const loadBankAccounts = () => {
-    return fetch("http://localhost:4000/api/bank-accounts")
+    return fetch(`${process.env.REACT_APP_API_URL}/api/bank-accounts`)
       .then(res => res.json())
       .then(data => setBankAccounts(Array.isArray(data) ? data : []))
       .catch(err => console.error("Error loading bank accounts:", err));
   };
 
   const loadWalletAccounts = () => {
-    return fetch("http://localhost:4000/api/wallet-accounts")
+    return fetch(`${process.env.REACT_APP_API_URL}/api/wallet-accounts`)
       .then(res => res.json())
       .then(data => setWalletAccounts(Array.isArray(data) ? data : []))
       .catch(err => console.error("Error loading wallet accounts:", err));
@@ -70,7 +72,7 @@ function Dashboard() {
 
   const handleDeposit = async (amount, currency) => {
     try {
-      const res = await fetch("http://localhost:4000/api/wallet/deposit", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/wallet/deposit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount, currency })
@@ -86,7 +88,7 @@ function Dashboard() {
 
   const handleWithdraw = async (amount, currency) => {
     try {
-      const res = await fetch("http://localhost:4000/api/wallet/withdraw", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/wallet/withdraw`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount, currency })
@@ -102,7 +104,7 @@ function Dashboard() {
 
   const handleAddBank = async (data) => {
     try {
-      const res = await fetch("http://localhost:4000/api/bank-accounts", {
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/bank-accounts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data)
@@ -127,12 +129,9 @@ function Dashboard() {
 
   return (
     <div className="dashboard">
-      {/* Navbar Component */}
       <Navbar />
 
-      {/* Main Dashboard Content */}
       <div className="dashboard-container">
-        {/* LEFT PANEL - Balance Card */}
         <div className="left-panel">
           <WalletCard
             balance={balance}
@@ -143,29 +142,24 @@ function Dashboard() {
           />
         </div>
 
-        {/* RIGHT PANEL - Chart & Transactions */}
         <div className="right-panel">
           <div className="chart-wrapper">
             <WalletChart />
           </div>
-
           <div className="transactions-wrapper">
             <TransactionTable transactions={transactions} />
           </div>
         </div>
       </div>
 
-      {/* Bank Accounts Section */}
       <div className="bank-accounts-section">
         <BankAccounts accounts={bankAccounts} />
       </div>
 
-      {/* Wallet Accounts Section */}
       <div className="wallet-accounts-section">
         <WalletAccounts accounts={walletAccounts} />
       </div>
 
-      {/* Modals */}
       <DepositModal
         open={showDeposit}
         onClose={() => setShowDeposit(false)}
